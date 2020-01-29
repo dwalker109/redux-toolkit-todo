@@ -6,11 +6,13 @@ const ToDoList = ({ todos, dispatchToDoAdd, dispatchToDoToggle }) => (
   <>
     <h1>ToDos</h1>
     <ul>
-      {todos
-        ? todos.map(item => (
-            <ToDoItem {...item} dispatchToDoToggle={dispatchToDoToggle} />
-          ))
-        : null}
+      {todos.map(item => (
+        <ToDoItem
+          key={item.id}
+          {...item}
+          dispatchToDoToggle={dispatchToDoToggle}
+        />
+      ))}
     </ul>
     <AddToDo dispatchToDoAdd={dispatchToDoAdd} />
   </>
@@ -18,7 +20,7 @@ const ToDoList = ({ todos, dispatchToDoAdd, dispatchToDoToggle }) => (
 
 const ToDoItem = ({ id, title, done, dispatchToDoToggle }) => (
   <li>
-    {title} - {done ? "done" : "not done"} -{" "}
+    {title} - {done ? "done" : "not done"}
     <button onClick={e => dispatchToDoToggle(id)}>Toggle</button>
   </li>
 );
