@@ -1,8 +1,15 @@
 import React, { useState } from "react";
 import { connect } from "react-redux";
 import { toDoAdd, toDoToggle } from "./toDoSlice";
+import { filters, filterSet } from "./filterSlice";
+import { createSelector } from "@reduxjs/toolkit";
 
-const ToDoList = ({ todos, dispatchToDoAdd, dispatchToDoToggle }) => (
+const ToDoList = ({
+  todos,
+  dispatchToDoAdd,
+  dispatchToDoToggle,
+  dispatchFilterSet
+}) => (
   <>
     <h1>ToDos</h1>
     <ul>
@@ -15,6 +22,7 @@ const ToDoList = ({ todos, dispatchToDoAdd, dispatchToDoToggle }) => (
       ))}
     </ul>
     <AddToDo dispatchToDoAdd={dispatchToDoAdd} />
+    <Filter dispatchFilterSet={dispatchFilterSet} />
   </>
 );
 
@@ -41,10 +49,29 @@ const AddToDo = ({ dispatchToDoAdd }) => {
   );
 };
 
-const mapStateToProps = state => ({ todos: state.todos });
+const selectTodos = state => state.todos;
+const selectFilter = state => state.filter;
+const selectFilteredTodos = createSelector(
+  [selectTodos, selectFilter],
+  (todos, filter) => {
+    return {
+      [filters.ALL]: () => todos,
+      [filters.DONE]: () => todos.filter(todo => todo.done),
+      [filters.REMAINING]: () => todos.filter(todo => !todo.done)
+    }[filter]();
+  }
+);
+
+const Filter = ({ dispatchFilterSet }) =>
+  Object.values(filters).map(filter => (
+    <button onClick={e => dispatchFilterSet(filter)}>{filter}</button>
+  ));
+
+const mapStateToProps = state => ({ todos: selectFilteredTodos(state) });
 const mapDispatchToProps = {
   dispatchToDoAdd: toDoAdd,
-  dispatchToDoToggle: toDoToggle
+  dispatchToDoToggle: toDoToggle,
+  dispatchFilterSet: filterSet
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ToDoList);
